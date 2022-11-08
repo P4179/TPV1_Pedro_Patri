@@ -1,0 +1,12 @@
+Pedro León Miranda
+Patricia Beatriz Rubia Luque
+
+Las funcionalidades incluidas son:
+- Vidas. Se muestran en la esquina superior derecha de la ventana de SDL. Al quedarse sin vidas, es decir al perder la vida 0, termina el juego.
+- Pantallas de GameOver y Win. Cuando se pierde o se gana un nivel se muestra la pantalla correspondiente.
+- Paso de niveles
+- Contador con el tiempo de juego. Se muestra en la esquina superior izquierda.
+- Registro con los 10 mejores tiempos. Se encuentran en un archivo ubicado en la carpeta TopTimes. Están ordenados de mejor a peor, es decir, de menor a mayor.
+- Guardado de partidas. Si se pulsa la tecla 'G' se guarda la partida actual en la carpeta SavedGame.
+
+No se ha implementado cargar una partida.
