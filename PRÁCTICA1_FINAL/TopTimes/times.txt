@@ -1,0 +1,7 @@
+TOP 10 TIMES
+Time 1: 1
+Time 2: 2.434
+Time 3: 2.531
+Time 4: 4.491
+Time 5: 7.5
+Time 6: 8.529
