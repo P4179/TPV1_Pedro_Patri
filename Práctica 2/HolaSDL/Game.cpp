@@ -23,10 +23,12 @@ void Game::render() const {
 	// render del contador
 	timer->render();
 
+	// render de la pantalla de derrota, solo se muestra si se ha perdido
 	if (gameover) {
 		gameoverScreen->render();
 	}
 
+	// render de la pantalla de victoria, solo se muestra si se ha ganado
 	if (win) {
 		winScreen->render();
 	}
@@ -81,7 +83,6 @@ void Game::newLevel() {
 
 void Game::restartLevel() {
 	if (lifes->getNumLifes() < 0) {
-		saveTimes("../TopTimes/times.txt", timer->getTime());
 		exit = true;
 	}
 	else {
@@ -94,123 +95,12 @@ void Game::restartLevel() {
 void Game::nextLevel() {
 	++currentLevel;
 	if (currentLevel >= NUM_LEVELS) {
+		TopTimes<double> topTimes = TopTimes<double>("../TopTimes/times.txt", timer->getTime());
 		exit = true;
 	}
 	else {
 		win = false;
 		newLevel();
-	}
-}
-
-void Game::mergeMin(arSob<double>& d, int ini, int mitad, int fin) const {
-	// se crea una estructura auxiliar donde se guardan los valores del intervalo
-	arSob<double> aux = arSob<double>(fin - ini);
-
-	int i = ini;
-	int j = mitad;
-	int k = 0;  // índice que apunta al primer hueco libre en la estructura auxiliar
-	// se comparan los elementos de la estructura original [ini,mitad) con [mitad,fin) para guardar los menores
-	while (k < aux.tam && i < mitad && j < fin) {
-		if (d.datos[i] < d.datos[j]) {
-			aux.datos[k] = d.datos[i];
-			i++;
-		}
-		else {
-			aux.datos[k] = d.datos[j];
-			j++;
-		}
-		k++;
-	}
-
-	// se guardan los elementos restantes del intervalo [ini,mitad)
-	for (i; i < mitad; i++) {
-		aux.datos[k] = d.datos[i];
-		k++;
-	}
-
-	// se guardan los elementos restantes del intervalo [mitad, fin)
-	for (j; j < fin; j++) {
-		aux.datos[k] = d.datos[j];
-		k++;
-	}
-
-	// se copian los elementos de la estructura auxiliar a la original
-	for (int i = 0; i < aux.tam; i++) {
-		d.datos[ini + i] = aux.datos[i];
-	}
-}
-
-void Game::mergeSort(arSob<double>& d, int ini, int fin) const {
-	int n = fin - ini;
-	if (n <= 1) {
-		return;
-	}
-	else {
-		int mitad = (ini + fin) / 2;
-		mergeSort(d, ini, mitad);
-		mergeSort(d, mitad, fin);
-		mergeMin(d, ini, mitad, fin);
-	}
-}
-
-void Game::sortMin(arSob<double>& d) const {
-	mergeSort(d, 0, d.cont);
-}
-
-double Game::numTime(ifstream& in) const {
-	double numTime;
-	string aux;
-	in >> aux >> aux >> numTime;
-	return numTime;
-}
-
-void Game::readTimes(const string& filename, arSob<double>& times) const {
-	ifstream in(filename);
-	if (!in.is_open()) {
-		throw string("Error leyendo el archivo con los mejores tiempos");
-	}
-	else {
-		string line;
-		getline(in, line);
-		while (!in.eof()) {
-			times.datos[times.cont] = numTime(in);
-			++times.cont;
-		}
-		in.close();
-	}
-}
-
-void Game::saveTimes(const string& filename, double newTime) const {
-	try {
-		arSob<double> times = arSob<double>(10);
-		readTimes(filename, times);
-		ofstream out(filename);
-		out << "TOP 10 TIMES" << endl;
-		if (times.cont < times.tam) {
-			times.datos[times.cont] = newTime;
-			++times.cont;
-		}
-		else {
-			if (newTime < times.datos[times.cont - 1]) {
-				times.datos[times.cont - 1] = newTime;
-			}
-		}
-
-		sortMin(times);
-
-		for (int i = 0; i < times.cont; ++i) {
-			out << "Time " << (i + 1) << ": " << times.datos[i];
-			if (i < times.cont - 1) {
-				out << endl;
-			}
-		}
-		out.close();
-	}
-	catch (string e) {
-		ofstream out(filename);
-		out << "TOP 10 TIMES" << endl;
-		out << "Time 1: " << newTime << endl;
-		out.close();
 	}
 }
 
@@ -247,6 +137,8 @@ Game::Game() {
 		textures[i] = new Texture(renderer, TEXT_DESC[i].filename, TEXT_DESC[i].hFrames, TEXT_DESC[i].vFrames);
 	}
 
+	// se crean los objetos de juego
+
 	// paredes
 	// pared izquierda
 	walls[0] = new Wall(Vector2D(0, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(1, 0));
@@ -261,14 +153,16 @@ Game::Game() {
 	// contador
 	timer = new Timer(0, Vector2D(0, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits]);
 
+	// pantalla de victoria
 	winScreen = new End(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Youwin]);
 
+	// pantalla de derrota
 	gameoverScreen = new End(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Gameover]);
 
 	// plataforma
 	paddle = new Paddle(Vector2D(WIN_WIDTH / 2 - PADDLE_WIDTH / 2, WIN_HEIGHT - 50), PADDLE_WIDTH, PADDLE_HEIGHT, Vector2D(0, 0), textures[_Paddle], WALL_THICKNESS, WIN_WIDTH - WALL_THICKNESS);
 
-	// ball
+	// pelota
 	ball = new Ball(Vector2D(WIN_WIDTH / 2 - BALL_TAM / 2, WIN_HEIGHT - 150), BALL_TAM, BALL_TAM, Vector2D(0, 1), textures[_Ball], this);
 
 	// mapa de bloques

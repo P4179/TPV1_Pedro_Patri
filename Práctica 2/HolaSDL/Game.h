@@ -3,7 +3,6 @@
 #include "SDL_image.h"
 #include "checkML.h"
 #include <iostream>
-#include <fstream>
 #include "Texture.h"
 #include "Wall.h"
 #include "BlocksMap.h"
@@ -12,6 +11,7 @@
 #include "Lifes.h"
 #include "Timer.h"
 #include "End.h"
+#include "TopTimes.h"
 
 using namespace std;
 
@@ -40,24 +40,6 @@ enum TextureName { _Ball, _Brick, _Digits, _Gameover, _Paddle, _Side, _Topside, 
 struct TextureDescription {
 	string filename;
 	uint hFrames, vFrames;
-};
-
-template <class T>
-// array sobredimensionado
-struct arSob {
-	T* datos = nullptr;
-	uint cont = 0;	// número de elementos que tiene
-	uint tam = 0;	// tamaño del array
-	// constructor
-	arSob(uint tam) {
-		this->tam = tam;
-		datos = new T[tam];
-	}
-	// destructor
-	// se invoca automáticamente cuando la estructura sale del ámbito donde se ha creado
-	~arSob() {
-		delete[] datos;
-	}
 };
 
 // inicialización homogénea
@@ -113,21 +95,6 @@ private:
 	// si se ha llegado al último se guarda el tiempo en un archivo con los 10 mejores tiempos
 	// y se finaliza el juego
 	void nextLevel();
-
-	// ordenar de menor a mayor los 10 mejores tiempos
-	// se utiliza el método de mergeSort
-	void mergeMin(arSob<double>& datos, int ini, int mid, int fin) const;
-	void mergeSort(arSob<double>& datos, int ini, int fin) const;
-	void sortMin(arSob<double>& datos) const;
-
-	// selecciona el número con el tiempo entre toda la línea
-	double numTime(ifstream& in) const;
-
-	// lee los mejores tiempos del archivo y los guarda en un array sobredimensionado
-	void readTimes(const string& filename, arSob<double>& times) const;
-
-	// guarda los tiempos en un archivo
-	void saveTimes(const string& filename, double newTime) const;
 
 	// guardar partida, delega a cada uno de los objetos que deben ser guardados
 	void saveGame(string filename) const;
