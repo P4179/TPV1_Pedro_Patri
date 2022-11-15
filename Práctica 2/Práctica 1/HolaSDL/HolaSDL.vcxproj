@@ -14,7 +14,6 @@
     <ProjectGuid>{28A4C5CD-307A-4FE6-81E4-4CE1F1E49AB4}</ProjectGuid>
     <RootNamespace>HolaSDL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>P2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,13 +70,10 @@
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="BlocksMap.cpp" />
-    <ClCompile Include="End.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Lifes.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Vector2D.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
@@ -85,12 +81,9 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="BlocksMap.h" />
-    <ClInclude Include="End.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Lifes.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector2D.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
