@@ -5,6 +5,7 @@
 #include "SDL.h" // Windows
 #include "SDL_image.h" // Windows
 #include "checkML.h"
+#include "SDLError.h"
 
 #include <string>
 

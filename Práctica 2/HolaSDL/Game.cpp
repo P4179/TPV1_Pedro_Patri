@@ -5,32 +5,34 @@
 void Game::render() const {
 	SDL_RenderClear(renderer);
 
-	// render de las paredes
-	for (int i = 0; i < NUM_WALLS; ++i) {
-		walls[i]->render();
+	if (menu) {
+		play->render();
+		load->render();
 	}
-	// render de la plataforma
-	paddle->render();
-	// render de la pelota
-	ball->render();
-
-	// render del blocksMap
-	blocksMap->render();
-
-	// render de las vidas del jugador
-	lifes->render();
-
-	// render del contador
-	timer->render();
-
-	// render de la pantalla de derrota, solo se muestra si se ha perdido
-	if (gameover) {
+	else {
+		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+			(*it)->render();
+		}
+		/*
+		// render de las paredes
+		for (int i = 0; i < NUM_WALLS; ++i) {
+			walls[i]->render();
+		}
+		// render de la plataforma
+		paddle->render();
+		// render de la pelota
+		ball->render();
+		// render del blocksMap
+		blocksMap->render();
+		// render de las vidas del jugador
+		lifes->render();
+		// render del contador
+		timer->render();
+		// render de la pantalla de derrota, solo se muestra si se ha perdido
 		gameoverScreen->render();
-	}
-
-	// render de la pantalla de victoria, solo se muestra si se ha ganado
-	if (win) {
+		// render de la pantalla de victoria, solo se muestra si se ha ganado
 		winScreen->render();
+		*/
 	}
 
 	SDL_RenderPresent(renderer);
@@ -41,14 +43,33 @@ void Game::render() const {
 }
 
 void Game::update() {
-	// se actualiza la bola
-	ball->update();
-	// se actualiza el paddle
-	paddle->update();
-	// se actualizan las vidas del jugador
-	lifes->update();
-	// se actualiza el contador
-	timer->update();
+	if (menu) {
+		play->update();
+		load->update();
+	}
+	else {
+		if (gameover) {
+			restartLevel();
+		}
+		else if (win) {
+			nextLevel();
+		}
+
+		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+			(*it)->update();
+		}
+
+		/*
+		// se actualiza la bola
+		ball->update();
+		// se actualiza el paddle
+		paddle->update();
+		// se actualizan las vidas del jugador
+		lifes->update();
+		// se actualiza el contador
+		timer->update();
+		*/
+	}
 }
 
 void Game::handleEvents() {
@@ -62,11 +83,23 @@ void Game::handleEvents() {
 		// cuando se pulsa 'G' se guarda la partida
 		if (event.type == SDL_KEYDOWN) {
 			if (event.key.keysym.sym == SDLK_g) {
-				saveGame("../SavedGame/save.txt");
-				cout << "Se ha guardado la partida" << endl;
+				saveGame();
+			}
+			else if (event.key.keysym.sym == SDLK_s) {
+				loadGame();
 			}
 		}
+
+		/*
 		paddle->handleEvents(event);
+		play->handleEvents(event);
+		load->handleEvents(event);
+		*/
+
+
+		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+			(*it)->handleEvents(event);
+		}
 	}
 }
 
@@ -75,10 +108,19 @@ void Game::newLevel() {
 	delete blocksMap;
 
 	// se recolocan la plataforma y la bola
+
+	for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+		if (typeid(*it) == typeid(BlocksMap)) {
+			(*it) = new BlocksMap("../Maps/level0" + to_string(currentLevel) + ".ark", Vector2D(WALL_THICKNESS, WALL_THICKNESS), WIN_WIDTH - 2 * WALL_THICKNESS, WIN_HEIGHT / 2, textures[_Brick]);
+		}
+	}
+
+	/*
 	paddle->recolocate(Vector2D(WIN_WIDTH / 2 - PADDLE_WIDTH / 2, WIN_HEIGHT - 50), Vector2D(0, 0));
 	ball->recolocate(Vector2D(WIN_WIDTH / 2 - BALL_TAM / 2, WIN_HEIGHT - 150), Vector2D(0, 1));
 	// se crea el nuevo mapa de bloques
 	blocksMap = new BlocksMap("../Maps/level0" + to_string(currentLevel) + ".ark", Vector2D(WALL_THICKNESS, WALL_THICKNESS), WIN_WIDTH - 2 * WALL_THICKNESS, WIN_HEIGHT / 2, textures[_Brick]);
+	*/
 }
 
 void Game::restartLevel() {
@@ -87,7 +129,6 @@ void Game::restartLevel() {
 	}
 	else {
 		gameover = false;
-		lifes->setGameover(gameover);
 		newLevel();
 	}
 }
@@ -104,19 +145,60 @@ void Game::nextLevel() {
 	}
 }
 
-void Game::saveGame(string filename) const {
-	ofstream out(filename);
+void Game::saveGame() const {
+	int cod = 0;
+	cout << "Introduce un codigo numerico: ";
+	cin >> cod;
+
+	ofstream out("../SavedGame/" + to_string(cod) + ".txt");
 	out << currentLevel << endl;
-	timer->saveGame(out);
+	for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+		(*it)->saveFromFile(out);
+	}
+	/*
+	timer->saveFromFile(out);
 	out << endl;
-	lifes->saveGame(out);
+	lifes->saveFromFile(out);
 	out << endl;
-	ball->saveGame(out);
+	ball->saveFromFile(out);
 	out << endl;
-	paddle->saveGame(out);
+	paddle->saveFromFile(out);
 	out << endl;
-	blocksMap->saveGame(out, "../SavedGame/map.txt");
+	blocksMap->saveFromFile(out);
+	*/
 	out.close();
+
+	cout << "Se ha guardado correctamente la partida" << endl;
+}
+
+void Game::loadGame() {
+	int cod = 0;
+	cout << "Introduce un codigo numerico: ";
+	cin >> cod;
+
+	ifstream in("../SavedGame/" + to_string(cod) + ".txt");
+	if (!in.is_open()) {
+		try {
+			throw FileNotFoundError("loadGame", "../SavedGame/" + to_string(cod) + ".txt");
+		}
+		catch (FileNotFoundError& e) {
+			cout << e.what() << endl;
+		}
+	}
+	else {
+		in >> currentLevel;
+		for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+			(*it)->loadFromFile(in);
+		}
+		/*
+		timer->loadFromFile(in);
+		lifes->loadFromFile(in);
+		ball->loadFromFile(in);
+		paddle->loadFromFile(in);
+		blocksMap->loadFromFile(in);
+		*/
+		in.close();
+	}
 }
 
 // Métodos públicos
@@ -127,7 +209,7 @@ Game::Game() {
 		SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (window == nullptr || renderer == nullptr) {
-		throw string("Error cargando SDL");
+		throw SDLError("game constructor");
 	}
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -139,34 +221,50 @@ Game::Game() {
 
 	// se crean los objetos de juego
 
+	// menú
+	// botón de jugar
+	play = new Play(Vector2D(WIN_WIDTH / 2 - BUTTON_WIDTH / 2, WIN_HEIGHT / 2 - BUTTON_HEIGHT / 2 - OFFSET), BUTTON_WIDTH, BUTTON_HEIGHT, textures[_Play], this);
+	// botón de cargar partida
+	load = new Load(Vector2D(WIN_WIDTH / 2 - BUTTON_WIDTH / 2, WIN_HEIGHT / 2 - BUTTON_HEIGHT / 2 + OFFSET), BUTTON_WIDTH, BUTTON_HEIGHT, textures[_Load], this);
+
 	// paredes
 	// pared izquierda
-	walls[0] = new Wall(Vector2D(0, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(1, 0));
+	// walls[0] = new Wall(Vector2D(0, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(1, 0));
+	gameObjects.push_back(new Wall(Vector2D(0, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(1, 0)));
 	// pared de arriba
-	walls[1] = new Wall(Vector2D(0, 0), WIN_WIDTH, WALL_THICKNESS, textures[_Topside], Vector2D(0, 1));
+	// walls[1] = new Wall(Vector2D(0, 0), WIN_WIDTH, WALL_THICKNESS, textures[_Topside], Vector2D(0, 1));
+	gameObjects.push_back(new Wall(Vector2D(0, 0), WIN_WIDTH, WALL_THICKNESS, textures[_Topside], Vector2D(0, 1)));
 	// pared derecha
-	walls[2] = new Wall(Vector2D(WIN_WIDTH - WALL_THICKNESS, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(-1, 0));
+	// walls[2] = new Wall(Vector2D(WIN_WIDTH - WALL_THICKNESS, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(-1, 0));
+	gameObjects.push_back(new Wall(Vector2D(WIN_WIDTH - WALL_THICKNESS, WALL_THICKNESS), WALL_THICKNESS, WIN_HEIGHT - WALL_THICKNESS, textures[_Side], Vector2D(-1, 0)));
 
 	// vidas del jugador
-	lifes = new Lifes(10, Vector2D(WIN_WIDTH - DIGIT_WIDTH, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits]);
+	// lifes = new Lifes(10, Vector2D(WIN_WIDTH - DIGIT_WIDTH, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits], this);
+	gameObjects.push_back(new Lifes(10, Vector2D(WIN_WIDTH - DIGIT_WIDTH, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits], this));
 
 	// contador
-	timer = new Timer(0, Vector2D(0, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits]);
+	// timer = new Timer(0, Vector2D(0, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits]);
+	gameObjects.push_back(new Timer(0, Vector2D(0, 0), DIGIT_WIDTH, DIGIT_HEIGHT, textures[_Digits]));
 
 	// pantalla de victoria
-	winScreen = new End(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Youwin]);
+	// winScreen = new Win(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Youwin], this);
+	gameObjects.push_back(new Win(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Youwin], this));
 
 	// pantalla de derrota
-	gameoverScreen = new End(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Gameover]);
+	// gameoverScreen = new GameOver(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Gameover], this);
+	gameObjects.push_back(new GameOver(Vector2D(0, 0), WIN_WIDTH, WIN_HEIGHT, textures[_Gameover], this));
 
 	// plataforma
-	paddle = new Paddle(Vector2D(WIN_WIDTH / 2 - PADDLE_WIDTH / 2, WIN_HEIGHT - 50), PADDLE_WIDTH, PADDLE_HEIGHT, Vector2D(0, 0), textures[_Paddle], WALL_THICKNESS, WIN_WIDTH - WALL_THICKNESS);
+	// paddle = new Paddle(Vector2D(WIN_WIDTH / 2 - PADDLE_WIDTH / 2, WIN_HEIGHT - 50), PADDLE_WIDTH, PADDLE_HEIGHT, Vector2D(0, 0), textures[_Paddle], WALL_THICKNESS, WIN_WIDTH - WALL_THICKNESS);
+	gameObjects.push_back(new Paddle(Vector2D(WIN_WIDTH / 2 - PADDLE_WIDTH / 2, WIN_HEIGHT - 50), PADDLE_WIDTH, PADDLE_HEIGHT, Vector2D(0, 0), textures[_Paddle], WALL_THICKNESS, WIN_WIDTH - WALL_THICKNESS));
 
 	// pelota
-	ball = new Ball(Vector2D(WIN_WIDTH / 2 - BALL_TAM / 2, WIN_HEIGHT - 150), BALL_TAM, BALL_TAM, Vector2D(0, 1), textures[_Ball], this);
+	// ball = new Ball(Vector2D(WIN_WIDTH / 2 - BALL_TAM / 2, WIN_HEIGHT - 150), BALL_TAM, BALL_TAM, Vector2D(0, 1), textures[_Ball], this);
+	gameObjects.push_back(new Ball(Vector2D(WIN_WIDTH / 2 - BALL_TAM / 2, WIN_HEIGHT - 150), BALL_TAM, BALL_TAM, Vector2D(0, 1), textures[_Ball], this));
 
 	// mapa de bloques
-	blocksMap = new BlocksMap("../Maps/level0" + to_string(currentLevel) + ".ark", Vector2D(WALL_THICKNESS, WALL_THICKNESS), WIN_WIDTH - 2 * WALL_THICKNESS, WIN_HEIGHT / 2, textures[_Brick]);
+	// blocksMap = new BlocksMap("../Maps/level0" + to_string(currentLevel) + ".ark", Vector2D(WALL_THICKNESS, WALL_THICKNESS), WIN_WIDTH - 2 * WALL_THICKNESS, WIN_HEIGHT / 2, textures[_Brick]);
+	gameObjects.push_back(blocksMap = new BlocksMap("../Maps/level0" + to_string(currentLevel) + ".ark", Vector2D(WALL_THICKNESS, WALL_THICKNESS), WIN_WIDTH - 2 * WALL_THICKNESS, WIN_HEIGHT / 2, textures[_Brick]));
 }
 
 Game::~Game() {
@@ -174,12 +272,24 @@ Game::~Game() {
 	for (int i = 0; i < NUM_TEXTURES; ++i) {
 		delete textures[i];
 	}
+	delete play;
+	delete load;
+
+	for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it) {
+		delete* it;
+	}
+	/*
 	for (int i = 0; i < NUM_WALLS; ++i) {
 		delete walls[i];
 	}
 	delete blocksMap;
 	delete paddle;
 	delete ball;
+	delete lifes;
+	delete timer;
+	delete winScreen;
+	delete gameoverScreen;
+	*/
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -189,25 +299,16 @@ void Game::run() {
 	uint32_t startTime, frameTime;
 	startTime = SDL_GetTicks();
 
-	// bucle con los niveles
+	// bucle de juego
 	while (!exit) {
-		while (!exit && !gameover && !win) { // Bucle del juego
-			handleEvents();
-			frameTime = SDL_GetTicks() - startTime; // Tiempo desde última actualización
-			// no se para el programa en ningún momento, solo se actualiza cuando han pasado los frames necesarios
-			if (frameTime >= FRAME_RATE) {
-				update(); // Actualiza el estado de todos los objetos del juego
-				startTime = SDL_GetTicks();
-			}
-			render(); // Renderiza todos los objetos del juego
+		handleEvents();
+		frameTime = SDL_GetTicks() - startTime; // Tiempo desde última actualización
+		// no se para el programa en ningún momento, solo se actualiza cuando han pasado los frames necesarios
+		if (frameTime >= FRAME_RATE) {
+			update(); // Actualiza el estado de todos los objetos del juego
+			startTime = SDL_GetTicks();
 		}
-
-		if (gameover) {
-			restartLevel();
-		}
-		else if (win) {
-			nextLevel();
-		}
+		render(); // Renderiza todos los objetos del juego
 	}
 }
 
@@ -240,7 +341,6 @@ bool Game::collides(const SDL_Rect& rectBall, Vector2D& colVector, bool& isPaddl
 	// Ball - DeadLine
 	if (rectBall.y >= WIN_HEIGHT) {
 		gameover = true;
-		lifes->setGameover(gameover);
 	}
 	return false;
 }

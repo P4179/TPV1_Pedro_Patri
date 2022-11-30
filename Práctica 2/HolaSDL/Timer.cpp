@@ -57,11 +57,8 @@ void Timer::render() const {
 		uint rowFrame = 0, colFrame = 0;
 		posFrame(timeString[i], rowFrame, colFrame);
 
-		SDL_Rect destRect;
+		SDL_Rect destRect = getRect();
 		destRect.x = pos.getX() + width * i;
-		destRect.y = pos.getY();
-		destRect.w = width;
-		destRect.h = height;
 		texture->renderFrame(destRect, rowFrame, colFrame);
 		++i;
 	}
@@ -71,11 +68,8 @@ void Timer::render() const {
 		uint rowFrame = 0, colFrame = 0;
 		posFrame(timeString[i], rowFrame, colFrame);
 
-		SDL_Rect destRect;
+		SDL_Rect destRect = getRect();
 		destRect.x = pos.getX() + width * i;
-		destRect.y = pos.getY();
-		destRect.w = width;
-		destRect.h = height;
 		texture->renderFrame(destRect, rowFrame, colFrame);
 	}
 }
@@ -89,6 +83,10 @@ double Timer::getTime() const {
 	return time;
 }
 
-void Timer::saveGame(ofstream& out) const {
+void Timer::saveFromFile(ofstream& out) const {
 	out << time;
+}
+
+void Timer::loadFromFile(ifstream& in) {
+	in >> startTime;
 }

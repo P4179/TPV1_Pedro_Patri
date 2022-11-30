@@ -1,30 +1,31 @@
 #pragma once
 #include "checkML.h"
 #include "Block.h"
-#include "Texture.h"
+#include "ArkanoidObject.h"
 #include <fstream>
+#include "FileNotFoundError.h"
+#include "FileFormatError.h"
 
 using uint = unsigned int;
 
-class BlocksMap {
+class BlocksMap : public ArkanoidObject {
 private:
-	// posición del mapa de bloques
-	Vector2D pos;
 	// matriz dinámica de punteros
 	Block*** map = nullptr;
 	int filas = 0;
 	int cols = 0;
-	// tamaño en píxeles del mapa
-	uint widthMap = 0;
-	uint heightMap = 0;
 	// tamaño en píxeles de cada celda del mapa
 	uint widthBlock = 0;
 	uint heightBlock = 0;
-	Texture* texture = nullptr;
 	int numBlocks = 0;
 
 	// se carga de un fichero de texto el mapa de bloques
 	void cargarFichero(string filename);
+
+	// cargar mapa
+	void loadMap(ifstream& in);
+
+	void libera();
 
 public:
 	// constructor
@@ -34,7 +35,7 @@ public:
 	~BlocksMap();
 
 	// rendererizado del mapa de bloques, se delega a cada uno de los bloques
-	void render() const;
+	virtual void render() const;
 
 	// consultar el número de bloques
 	int nBlocks() const;
@@ -47,5 +48,12 @@ public:
 	bool collides(const SDL_Rect& rectBall, Vector2D& colVector);
 
 	// guardar el mapa
-	void saveGame(ofstream& out, const string& filename) const;
+	virtual void saveFromFile(ofstream& out) const;
+
+	// cargar mapa
+	virtual void loadFromFile(ifstream& in);
+
+	// redefinido para que deje de ser una clase abstracta
+	virtual void update() {}
+	virtual void handleEvents(const SDL_Event& event) {}
 };
