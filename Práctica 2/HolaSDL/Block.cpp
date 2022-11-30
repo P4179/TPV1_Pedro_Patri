@@ -31,15 +31,6 @@ void Block::posFrame(uint color, uint& rowFrame, uint& colFrame) const {
 	}
 }
 
-SDL_Rect Block::getDestRect() const {
-	SDL_Rect destRect;
-	destRect.x = pos.getX();
-	destRect.y = pos.getY();
-	destRect.w = width;
-	destRect.h = height;
-	return destRect;
-}
-
 Vector2D Block::detColVector(const SDL_Rect rectBall, const SDL_Rect rectSelf) {
 	Vector2D colVector;
 	// esquina superior izquierda del bloque
@@ -83,11 +74,11 @@ void Block::render() const {
 	uint rowFrame = 0, colFrame = 0;
 	posFrame(color, rowFrame, colFrame);
 
-	texture->renderFrame(getDestRect(), rowFrame, colFrame);
+	texture->renderFrame(getRect(), rowFrame, colFrame);
 }
 
 bool Block::collides(const SDL_Rect& rectBall, Vector2D& colVector) {
-	SDL_Rect rectBlock = getDestRect();
+	SDL_Rect rectBlock = getRect();
 	colVector = detColVector(rectBall, rectBlock);
 	return SDL_HasIntersection(&rectBall, &rectBlock);
 }

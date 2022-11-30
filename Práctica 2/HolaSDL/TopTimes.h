@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include "ArraySob.h"
+#include "FileNotFoundError.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ private:
 	ArraySob<T> readTimes(const string& filename) const {
 		ifstream in(filename);
 		if (!in.is_open()) {
-			throw string("Error leyendo el archivo con los mejores tiempos");
+			throw FileNotFoundError("readTimes", filename);
 		}
 		else {
 			ArraySob<T> times = ArraySob<T>(10);
@@ -62,7 +63,8 @@ private:
 			}
 			out.close();
 		}
-		catch (string e) {
+		// no existe ningún archivo que almacene el top10 tiempos
+		catch (FileNotFoundError& e) {
 			ofstream out(filename);
 			out << "TOP 10 TIMES" << endl;
 			out << "Time 1: " << newTime << endl;

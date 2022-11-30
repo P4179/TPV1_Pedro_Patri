@@ -1,40 +1,37 @@
 #pragma once
 #include "checkML.h"
-#include "Vector2D.h"
-#include "Texture.h"
+#include "ArkanoidObject.h"
 #include <fstream>
 
 using uint = unsigned int;
+class Game;
 
-class Lifes {
+class Lifes : public ArkanoidObject {
 private:
 	int numLifes = 0;
-	// es necesario conocer cuando se ha perdido para poder restar una vida
-	bool gameover = false;
-	Vector2D pos;
-	uint width = 0;
-	uint height = 0;
-	Texture* texture = nullptr;
+	Game* game = nullptr;
 
 	// a partir del número de vidas se encuentran los frames de la textura deseados
 	void posFrame(int digitLife, uint& rowFrame, uint& colFrame) const;
 
 public:
-	Lifes(int numLifes, Vector2D pos, uint width, uint height, Texture* texture) :
-		numLifes(numLifes), pos(pos), width(width), height(height), texture(texture) {}
+	Lifes(int numLifes, Vector2D pos, uint width, uint height, Texture* texture, Game* game) :
+		numLifes(numLifes), ArkanoidObject(pos, width, height, texture), game(game) {}
 
 	// renderizado del número de vidas
-	void render() const;
+	virtual void render() const;
 
 	// se actualiza el número de vidas si se ha perdido un nivel
-	void update();
+	virtual void update();
 
 	// getter del número de vidas
 	int getNumLifes() const;
 
-	// setter del gameover
-	void setGameover(bool gameover);
-
 	// guardar vidas del jugador
-	void saveGame(ofstream& out) const;
+	virtual void saveFromFile(ofstream& out) const;
+
+	virtual void loadFromFile(ifstream& in);
+
+	// redefinido para que deje de ser una clase abstracta
+	virtual void handleEvents(const SDL_Event& event) {}
 };

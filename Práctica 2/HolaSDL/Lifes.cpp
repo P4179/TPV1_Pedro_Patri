@@ -1,4 +1,5 @@
 #include "Lifes.h"
+#include "Game.h"
 
 // Métodos privados 
 // 
@@ -58,18 +59,15 @@ void Lifes::render() const {
 		uint rowFrame = 0, colFrame = 0;
 		posFrame(digit, rowFrame, colFrame);
 
-		SDL_Rect destRect;
+		SDL_Rect destRect = getRect();
 		destRect.x = pos.getX() - width * offset;
-		destRect.y = pos.getY();
-		destRect.w = width;
-		destRect.h = height;
 		texture->renderFrame(destRect, rowFrame, colFrame);
 		++offset;
 	} while (aux > 0);
 }
 
 void Lifes::update() {
-	if (gameover) {
+	if (game->getGameOver()) {
 		--numLifes;
 	}
 }
@@ -78,10 +76,10 @@ int Lifes::getNumLifes() const {
 	return numLifes;
 }
 
-void Lifes::setGameover(bool gameover) {
-	this->gameover = gameover;
+void Lifes::saveFromFile(ofstream& out) const {
+	out << numLifes;
 }
 
-void Lifes::saveGame(ofstream& out) const {
-	out << numLifes;
+void Lifes::loadFromFile(ifstream& in) {
+	in >> numLifes;
 }
