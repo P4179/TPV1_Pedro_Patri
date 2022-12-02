@@ -1,0 +1,7 @@
+Pedro León Miranda
+Patricia Beatriz Rubia Luque
+
+Las funcionalidades opcionales implementadas son:
+- Archivo que almacena la configuración del juego, es decir, el tamaño de la ventana de SDL y de los objetos.
+- TTF. No hemos sido capaces de cargar la librería, por lo tanto, no se puede utilizar.
+	Sin embargo, se ha implementado la clase Font, que serviría para crear texturas a partir de texto.

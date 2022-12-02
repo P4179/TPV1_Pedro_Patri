@@ -77,10 +77,10 @@ void Block::render() const {
 	texture->renderFrame(getRect(), rowFrame, colFrame);
 }
 
-bool Block::collides(const SDL_Rect& rectBall, Vector2D& colVector) {
-	SDL_Rect rectBlock = getRect();
+bool Block::collidesBall(const SDL_Rect& rectBall, Vector2D& colVector, SDL_Rect& rectBlock) {
+	rectBlock = getRect();
 	colVector = detColVector(rectBall, rectBlock);
-	return SDL_HasIntersection(&rectBall, &rectBlock);
+	return collides(rectBall);
 }
 
 uint Block::getColor() {

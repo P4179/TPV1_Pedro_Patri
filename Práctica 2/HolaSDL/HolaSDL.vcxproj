@@ -45,8 +45,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)SDL2-2.0.4\include;$(SolutionDir)SDL2_image-2.0.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)SDL2-2.0.4\lib\x86;$(SolutionDir)SDL2_image-2.0.1\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)SDL2-2.0.4\include;$(SolutionDir)SDL2_image-2.0.1\include;$(SolutionDir)SDL2_ttf-2.20.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)SDL2-2.0.4\lib\x86;$(SolutionDir)SDL2_image-2.0.1\lib\x86;$(SolutionDir)SDL2_ttf-2.20.1\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -87,6 +87,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Play.cpp" />
+    <ClCompile Include="Reward.cpp" />
+    <ClCompile Include="RewardAddLife.cpp" />
+    <ClCompile Include="RewardChangePlatform.cpp" />
+    <ClCompile Include="RewardPassLv.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Vector2D.cpp" />
@@ -103,6 +107,10 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="GameOver.h" />
     <ClInclude Include="MovingObject.h" />
+    <ClInclude Include="Reward.h" />
+    <ClInclude Include="RewardAddLife.h" />
+    <ClInclude Include="RewardChangePlatform.h" />
+    <ClInclude Include="RewardPassLv.h" />
     <ClInclude Include="Win.h" />
     <ClInclude Include="FileFormatError.h" />
     <ClInclude Include="FileNotFoundError.h" />

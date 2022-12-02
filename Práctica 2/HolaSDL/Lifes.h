@@ -27,6 +27,9 @@ public:
 	// getter del número de vidas
 	int getNumLifes() const;
 
+	// añadir una vida
+	void addLife() { ++numLifes; }
+
 	// guardar vidas del jugador
 	virtual void saveFromFile(ofstream& out) const;
 

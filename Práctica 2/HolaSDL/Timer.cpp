@@ -84,7 +84,7 @@ double Timer::getTime() const {
 }
 
 void Timer::saveFromFile(ofstream& out) const {
-	out << time;
+	out << time << endl;
 }
 
 void Timer::loadFromFile(ifstream& in) {

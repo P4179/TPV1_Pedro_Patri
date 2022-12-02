@@ -27,5 +27,9 @@ public:
 	void handleEvents(const SDL_Event& event);
 
 	// determinar si la bola ha chocado con la plataforma y el vector de colisión que se forma
-	bool collides(const SDL_Rect& rectBall, Vector2D& dirBall);
+	bool collidesBall(const SDL_Rect& rectBall, Vector2D& dirBall);
+
+	void setWidth(uint width) { this->width = width; }
+
+	uint getWidth() const { return width; }
 };

@@ -2,7 +2,7 @@
 #include "Game.h"
 
 // Métodos privados 
-// 
+
 // a partir del número de vidas encontrar el frame de la textura deseado
 void Lifes::posFrame(int digitLife, uint& rowFrame, uint& colFrame) const {
 	switch (digitLife) {
@@ -77,7 +77,7 @@ int Lifes::getNumLifes() const {
 }
 
 void Lifes::saveFromFile(ofstream& out) const {
-	out << numLifes;
+	out << numLifes << endl;
 }
 
 void Lifes::loadFromFile(ifstream& in) {

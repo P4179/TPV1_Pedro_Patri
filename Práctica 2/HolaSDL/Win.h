@@ -8,11 +8,12 @@ class Game;
 class Win : public ArkanoidObject {
 private:
 	Game* game;
+
 public:
 	Win(Vector2D pos, uint width, uint height, Texture* texture, Game* game) :
 		ArkanoidObject(pos, width, height, texture), game(game) {}
 
-	virtual void render();
+	virtual void render() const;
 
 	// redefinido para que deje de ser una clase abstracta
 	virtual void update() {}

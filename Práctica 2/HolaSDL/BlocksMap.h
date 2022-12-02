@@ -32,7 +32,7 @@ public:
 	BlocksMap(string filename, Vector2D pos, uint widthMap, uint heightMap, Texture* texture);
 
 	// destructora
-	~BlocksMap();
+	virtual ~BlocksMap();
 
 	// rendererizado del mapa de bloques, se delega a cada uno de los bloques
 	virtual void render() const;
@@ -45,7 +45,7 @@ public:
 
 	// determina el bloque de colisión con la pelota
 	// determina el vector de colisión de la pelota con el bloque, en caso de producirse colisión
-	bool collides(const SDL_Rect& rectBall, Vector2D& colVector);
+	bool collidesBall(const SDL_Rect& rectBall, Vector2D& colVector, SDL_Rect& rectBlock);
 
 	// guardar el mapa
 	virtual void saveFromFile(ofstream& out) const;

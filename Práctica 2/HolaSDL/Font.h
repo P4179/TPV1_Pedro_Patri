@@ -3,7 +3,6 @@
 #include "checkML.h"
 #include "SDLError.h"
 #include "SDL_ttf.h"
-#include <cstring>
 
 using uint = unsigned int;
 
@@ -13,6 +12,8 @@ struct color {
 	uint blue = 0;
 };
 
+// No conseguimos cargar la librería
+// Si creamos una instancia de Font o inicializamos (TTF_Init) se produce un error
 class Font {
 private:
 	SDL_Texture* texture = nullptr;
@@ -27,14 +28,13 @@ private:
 		w = h = 0;
 	}
 
-	void load(string filename, string text, uint size, color col) {
+	void load(char* filename, string text, uint size, color col) {
 		// se abre la fuente
-		// string.c_str() se utiliza para convertir un string en un array de chars
-		TTF_Font* font = TTF_OpenFont(filename.c_str(), size);
+		TTF_Font* font = TTF_OpenFont(filename, size);
 		if (font == nullptr) throw SDLError("load");
 
 		// color de la fuente
-		SDL_Color color = {col.red, col.green, col.blue};
+		SDL_Color color = { col.red, col.green, col.blue };
 
 		// se convierte la fuente en un surface
 		SDL_Surface* tempSurface = TTF_RenderText_Solid(font, text.c_str(), color);
@@ -45,14 +45,13 @@ private:
 		// tamaños del fichero
 		w = tempSurface->w;
 		h = tempSurface->h;
-		// tamaños de cada uno de los frames
 
 		TTF_CloseFont(font);
 		SDL_FreeSurface(tempSurface);
 	}
 
 public:
-	Font(SDL_Renderer* r, string filename, string text, uint size, color col) :
+	Font(SDL_Renderer* r, char* filename, string text, uint size, color col) :
 		renderer(r) {
 		load(filename, text, size, col);
 	};

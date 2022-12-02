@@ -106,14 +106,14 @@ void BlocksMap::destroyBlock(Block*& block) {
 	--numBlocks;
 }
 
-bool BlocksMap::collides(const SDL_Rect& rectBall, Vector2D& colVector) {
+bool BlocksMap::collidesBall(const SDL_Rect& rectBall, Vector2D& colVector, SDL_Rect& rectBlock) {
 	bool enc = false;
 	int i = 0;
 	while (i < filas && !enc) {
 		int j = 0;
 		while (j < cols && !enc) {
 			if (map[i][j] != nullptr) {
-				enc = map[i][j]->collides(rectBall, colVector);
+				enc = map[i][j]->collidesBall(rectBall, colVector, rectBlock);
 				if (enc) {
 					destroyBlock(map[i][j]);
 				}

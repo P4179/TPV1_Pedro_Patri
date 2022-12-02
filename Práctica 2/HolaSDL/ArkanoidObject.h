@@ -33,9 +33,18 @@ protected:
 	ArkanoidObject(Vector2D pos, uint width, uint height, Texture* texture) : 
 		pos(pos), width(width), height(height), texture(texture) {}
 
+
 public:
+	// hay que crear una destructora vacía virtual para que la destrucción se resuelva por enlace dinámico
+	// porque sino al hacer delete de BlockMaps no se eliminarías sus atributos dinámicos
+	virtual ~ArkanoidObject() {}
+
 	virtual void render() const {
 		texture->render(getRect());
+	}
+
+	virtual bool collides(const SDL_Rect& rect) {
+		return SDL_HasIntersection(&rect, &getRect());
 	}
 
 	virtual void loadFromFile(ifstream& in) = 0;

@@ -22,7 +22,7 @@ public:
 
 	virtual void saveFromFile(ofstream& out) const {
 		out << pos.getX() << " " << pos.getY() << endl;
-		out << dir.getX() << " " << dir.getY();
+		out << dir.getX() << " " << dir.getY() << endl;
 	}
 
 	// recolocar la bola dándole una posición y una dirección nuevas

@@ -24,5 +24,5 @@ public:
 	virtual void saveFromFile(ofstream& out) const {}
 
 	// colisiones de la pared, en este caso, siempre serán con la bola
-	bool collides(SDL_Rect rectBall, Vector2D& colVector);
+	bool collidesBall(SDL_Rect rectBall, Vector2D& colVector);
 };

@@ -3,7 +3,9 @@
 #include "SDL_image.h"
 #include "checkML.h"
 #include <iostream>
+#include <string>
 #include <list>
+#include <vector>
 #include "Texture.h"
 #include "Wall.h"
 #include "BlocksMap.h"
@@ -17,7 +19,9 @@
 #include "Button.h"
 #include "Play.h"
 #include "Load.h"
-#include "Font.h"
+#include "RewardPassLv.h"
+#include "RewardAddLife.h"
+#include "RewardChangePlatform.h"
 #include "SDLError.h"
 #include "FileNotFoundError.h"
 
@@ -26,26 +30,18 @@ using namespace std;
 using uint = unsigned int;
 
 // constantes
-const uint NUM_TEXTURES = 10;
-const uint NUM_WALLS = 3;
-const uint WIN_WIDTH = 800;
-const uint WIN_HEIGHT = 600;
-const uint FRAME_RATE = 5;
-const uint WALL_THICKNESS = 15;	// grosor de las paredes
-const uint PADDLE_WIDTH = 125;
-const uint PADDLE_HEIGHT = 15;
-const uint BALL_TAM = 20;
+const uint NUM_TEXTURES = 11;
 const uint NUM_LEVELS = 3;
-const uint DIGIT_WIDTH = 20;
-const uint DIGIT_HEIGHT = 35;
-const uint SCREEN_WAIT = 1000;
-const uint BUTTON_WIDTH = 300;
-const uint BUTTON_HEIGHT = 200;
-const uint OFFSET = 100;
+
+enum RewardType { PassLv, AddLife, BigPlatform, SmallPlatform };
+
+enum Config{Win_Width, Win_Height, Frame_Rate, Wall_thickness, Paddle_width, Paddle_height, Ball_tam, 
+	Digit_width, Digith_height, Screen_wait, Button_width, Button_height, Button_offset, Probability,
+	Reward_width, Reward_height};
 
 // enumerado para acceder a las posiciones de un array más fácilmente, 
 // de modo que no hace falta recordar que componente está asociada con que gameObject
-enum TextureName { _Ball, _Brick, _Digits, _Gameover, _Paddle, _Side, _Topside, _Youwin, _Play, _Load };
+enum TextureName { _Ball, _Brick, _Digits, _Gameover, _Paddle, _Side, _Topside, _Youwin, _Play, _Load, _Rewards };
 
 // información de la textura
 struct TextureDescription {
@@ -64,7 +60,8 @@ const TextureDescription TEXT_DESC[NUM_TEXTURES]{
 	{"../images/topside.png", 1, 1},
 	{"../images/youwin.png", 1, 1},
 	{"../images/play.png", 1, 1},
-	{"../images/load.png", 1, 1}
+	{"../images/load.png", 1, 1},
+	{"../images/rewards.png", 10, 8}
 };
 
 class Game {
@@ -73,23 +70,17 @@ private:
 	SDL_Renderer* renderer = nullptr;
 	// booleanos de control de juego
 	bool exit = false, gameover = false, win = false;
+	bool menu = true;
+	uint currentLevel = 1;
 	// texturas
 	Texture* textures[NUM_TEXTURES];	// array estático de punteros a Texture
-	// objetos de juego
+	// lista con los objetos estáticos de juego
 	list<ArkanoidObject*> gameObjects;
-	Wall* walls[NUM_WALLS];	// array estático de punteros a Wall
-	BlocksMap* blocksMap = nullptr;
-	Paddle* paddle = nullptr;
-	Ball* ball = nullptr;
-	uint currentLevel = 1;
-	Lifes* lifes = nullptr;
-	Timer* timer = nullptr;
-	Win* winScreen = nullptr;
-	GameOver* gameoverScreen = nullptr;
-
-	Button* play = nullptr;
-	Button* load = nullptr;
-	bool menu = true;
+	// lista con los botones, que forman el menú
+	list<Button*> buttons;
+	// lista con los objetos de juego dinámicos
+	list<MovingObject*> movingObjects;
+	vector<uint> config;
 
 	// renderizado del juego, que delega el renderizado a cada uno de los objetos de juego
 	// Es decir, cada objeto llama a su propio método render
@@ -116,6 +107,16 @@ private:
 	// guardar partida, delega a cada uno de los objetos que deben ser guardados
 	void saveGame() const;
 
+	// almacena en un vector los datos de la configuración del juego
+	void loadConfig(const string& filename);
+
+	// se destruyen los objetos dinámicos que han sido marcados para destruir
+	void destroyMovingObjects();
+
+	RewardType stringToRewardType(string s);
+
+	void createRewards(RewardType r, Vector2D pos = Vector2D(0, 0));
+
 public:
 	// constructora de game, inicializa SDL y los gameObjects
 	Game();
@@ -130,14 +131,24 @@ public:
 	// la clase Game es quien gestiona las colisiones de la bola porque tiene información de los demás objetos
 	bool collides(const SDL_Rect& rectBall, Vector2D& colVector, bool& isPaddle);
 
+	bool collidesRewards(const SDL_Rect& rect, bool& collidesPaddle);
+
 	bool getGameOver() const { return gameover; }
 
 	bool getWin() const { return win; }
 
-	void setMenu(bool menu) {
-		this->menu = menu;
-	}
+	uint getPaddleWidth() const { return config[Paddle_width]; }
 
+	void setWin(bool win) { this->win = win; }
+
+	// necesario que sea público para ambos botones
+	void setMenu(bool menu) { this->menu = menu; }
+
+	// necesario que sea público para el botón de load
 	// cargar partida, delega a cada uno de los objetos que deben ser guardados
 	void loadGame();
+
+	// un movingObject llama a este método para notificarle al Game que deber ser destruido
+	// se le marca como que debe destruirse haciendo que apunte a null
+	void destroyMe(MovingObject* m);
 };

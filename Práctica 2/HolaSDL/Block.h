@@ -27,7 +27,7 @@ public:
 	virtual void render() const;
 
 	// colisión de un bloque, dependiendo de en que lado colisione el vector de colisión será uno u otro
-	bool collides(const SDL_Rect& rectBall, Vector2D& colVector);
+	bool collidesBall(const SDL_Rect& rectBall, Vector2D& colVector, SDL_Rect& rectBlock);
 
 	// getter del color
 	uint getColor();

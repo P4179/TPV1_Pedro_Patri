@@ -35,7 +35,7 @@ void Paddle::handleEvents(const SDL_Event& event) {
 	}
 }
 
-bool Paddle::collides(const SDL_Rect& rectBall, Vector2D& dirBall) {
+bool Paddle::collidesBall(const SDL_Rect& rectBall, Vector2D& dirBall) {
 	SDL_Rect destRect = getRect();
 
 	int midBall = rectBall.x + rectBall.w / 2;
@@ -43,5 +43,5 @@ bool Paddle::collides(const SDL_Rect& rectBall, Vector2D& dirBall) {
 	int ratio = (midBall - midPaddle) / 10;
 	dirBall = Vector2D(ratio, -2.5);
 
-	return SDL_HasIntersection(&rectBall, &destRect);
+	return collides(rectBall);
 }
